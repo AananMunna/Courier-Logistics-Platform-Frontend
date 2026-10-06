@@ -1,112 +1,123 @@
-# CourierGo — Courier & Logistics Platform (Frontend)
+# CourierGo – Courier & Logistics Platform (Frontend)
 
-Production-oriented Next.js frontend for the **Courier & Logistics Platform** backend.
-Three fixed roles — **Customer**, **Rider**, **Admin** — plus a public parcel-tracking site.
+A web app for booking, delivering and tracking parcels. It talks to a separate REST API (the backend repo) and has three kinds of users: customers, riders and admins. There is also a public page where anyone can track a parcel with its tracking code.
 
-## Stack
+- **Live site:** https://couriergo.vercel.app/
+- **Backend API:** https://courier-logistics-platform-backend.vercel.app/
 
-Next.js 16 (App Router, React Compiler) · TypeScript (strict) · Tailwind CSS 4 · shadcn/ui on Base UI ·
-TanStack Query · TanStack Form + Zod · Recharts · Sonner-style toasts · bKash (via backend)
+## Demo accounts
 
-## Quick start
+The login page has one-click buttons for these, so you don't need to type anything.
+
+| Role     | Email                 | Password       |
+| -------- | --------------------- | -------------- |
+| Admin    | admin@courier.com     | Admin@123      |
+| Customer | customer@courier.com  | Customer@123   |
+| Rider    | rider@courier.com     | Rider@123      |
+
+These are demo accounts only. Please don't enter real personal data.
+
+## What each role can do
+
+**Customer**
+- Book a parcel in four short steps (pickup, receiver, parcel details, review). The delivery fee is shown before you confirm.
+- Pay with bKash or choose cash on delivery.
+- Follow each shipment on a timeline, and cancel it until it has been picked up.
+- See payment history and edit the profile and photo.
+
+**Rider**
+- Apply to become a rider; an admin has to approve the application first.
+- See assigned parcels and move each one forward: picked up, in transit, out for delivery, delivered. A problem can be reported with a reason.
+- Check earnings, set availability, and edit vehicle details.
+
+**Admin**
+- Dashboard with totals and charts, plus a queue of things that need action (parcels without a rider, rider applications, failed deliveries).
+- Assign riders to shipments, approve or reject rider applications.
+- Manage hubs, users (block/unblock) and payments, and read the audit log.
+
+**Public**
+- Landing page, services, pricing with a fee calculator, hub list, about and contact pages, and parcel tracking.
+
+## Tech used
+
+- Next.js (App Router) with TypeScript
+- Tailwind CSS and shadcn/ui components
+- TanStack Query for data fetching, TanStack Form with Zod for forms
+- Recharts for charts
+- bKash payments, handled by the backend
+
+## Running it locally
+
+You need Node.js 20 or newer and the backend running somewhere (locally or the live one).
 
 ```bash
-cp .env.example .env.local      # set BACKEND_URL to your running backend
+git clone https://github.com/AananMunna/Courier-Logistics-Platform-Frontend.git
+cd Courier-Logistics-Platform-Frontend
 npm install
-npm run dev                     # http://localhost:3000
+cp .env.example .env.local
 ```
 
-Build: `npm run build && npm start` · Typecheck: `npm run typecheck` · Lint/format: `npm run lint`
+Open `.env.local` and set `BACKEND_URL` to the backend address, for example `http://localhost:5000` or the live backend URL above. Then:
 
-### Backend settings that must match
+```bash
+npm run dev
+```
 
-| Backend `.env`  | Value |
-| --------------- | ----- |
-| `FRONTEND_URL`  | URL of this site (bKash redirects the customer to `FRONTEND_URL/payment/success` or `/payment/failure`) |
-| Seeded accounts | `admin@courier.com / Admin@123`, `customer@courier.com / Customer@123`, `rider@courier.com / Rider@123` (used by the one-click demo buttons; override with `NEXT_PUBLIC_DEMO_*`) |
+The app opens at http://localhost:3000.
 
-**How API calls work:** the browser calls `/api/v1/*` on *this* origin and `next.config.ts` rewrites it to
-`BACKEND_URL`. Auth cookies therefore stay first-party (no CORS, no third-party-cookie blocking) and
-`src/proxy.ts` can read the session cookie for instant, flash-free route protection.
-To call the backend directly instead, set `NEXT_PUBLIC_API_BASE_URL` to the absolute URL (route protection then
-falls back to the client guards only).
+Other scripts: `npm run build`, `npm start`, `npm run typecheck`, `npm run lint`.
 
-## Pages (36 routes)
+### Environment variables
 
-| Area | Routes |
-| ---- | ------ |
-| Public | `/` `/services` `/pricing` (fee calculator + FAQ) `/hubs` `/track` `/about-us` `/contact` |
-| Auth | `/login` (one-click demo for all 3 roles) `/register` `/register/verify-account` `/apply` (rider) `/apply/verify-account` `/forgot-password` `/reset-password` |
-| Payment | `/payment/success` `/payment/failure` `/payment/cancel` |
-| Customer `/dashboard` | overview · `shipments` · `shipments/new` (4-step wizard) · `shipments/[id]` · `payments` · `profile` |
-| Rider `/rider` | today · `shipments` · `shipments/[id]` · `earnings` · `profile` (vehicle & availability) |
-| Admin `/admin` | overview (charts) · `shipments` · `shipments/[id]` · `approve-rider` · `hubs` · `payments` · `users` · `audit-logs` |
-| Utility | custom `not-found`, global + dashboard `error.tsx`, `loading.tsx` skeletons |
+| Variable | What it is for |
+| -------- | -------------- |
+| `BACKEND_URL` | Address of the backend. Requests to `/api/v1/*` are forwarded here. |
+| `NEXT_PUBLIC_API_BASE_URL` | Keep as `/api/v1` unless you want the browser to call the backend directly. |
+| `NEXT_PUBLIC_SITE_URL` | Public URL of this site. |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Optional. Without it the Google sign-in button is hidden. |
+| `NEXT_PUBLIC_DEMO_*` | Optional. Credentials for the one-click demo login buttons. |
 
-## Role workflows (kept deliberately short)
+The full list is in `.env.example`.
 
-- **Customer:** *Send a parcel* → 4 short steps (pickup → receiver → parcel → review, fee shown before confirming) →
-  shipment page with a single **Pay with bKash** button (or COD) → live timeline. Cancel is available until pickup.
-- **Admin:** dashboard banners surface the two things that need action — *riders awaiting approval* and
-  *shipments needing a rider*. Assign a rider from the shipment page in one dialog.
-- **Rider:** one big action button per parcel that follows the backend's status rules
-  (Picked up → In transit → Out for delivery → Delivered; "Report problem" asks for a reason). COD reminder on delivery.
+## How API calls work
 
-## Backend API coverage
+The browser calls `/api/v1/...` on the same site, and `next.config.ts` forwards those requests to `BACKEND_URL`. This keeps the login cookies first-party, so there are no CORS or cookie-blocking problems, and `src/proxy.ts` can read the session cookie to protect routes. An expired access token is refreshed quietly in `src/lib/apiClient.ts`.
 
-All endpoints in the backend are wired in `src/api/*` and exposed through hooks in `src/hooks/*`:
-auth (register, verify, rider register/verify, login, logout, refresh, me, Google, forgot/reset/change password),
-users (me, profile image upload with progress, list, block/unblock), riders (list, verify, me, update me, assigned
-shipments, earnings), hubs (CRUD), shipments (create, mine, all, detail, public track, assign, status, cancel, delete),
-tracking (timeline, note), payments (initiate, refund, mine, all, by shipment), analytics (admin, customer, rider, audit logs).
-Silent token refresh (single-flight) happens in `src/lib/apiClient.ts`.
-
-## Structure
+## Project structure
 
 ```
 src/
-  app/            routes — (public)/(marketing), (public)/(authentication), (dashboard)/{admin,rider,dashboard}, payment
-  api/            one file per backend module
-  hooks/          TanStack Query hooks, useUrlState (filters/sort/search/page in the URL), useDebounce
-  components/
-    ui/           shadcn/Base UI primitives
-    shared/       StatCard, EmptyState, ErrorState, status badges, timeline, dialogs, form fields, skeletons
-    modules/      feature UI (shipments, payments, admin, rider, profile, tracking, homepage…)
-    form/         auth forms        auth/  guards       layout/  shells, header, footer
+  app/          pages and layouts
+  api/          one file per backend module
+  hooks/        data hooks and small helpers (URL state, debounce)
+  components/   ui primitives, shared pieces, and feature modules
   config/ constants/ types/ validation/ utils/ lib/ routes/ providers/
-  proxy.ts        role-based route protection
+  proxy.ts      role-based route protection
+e2e/            API and UI tests
 ```
 
-## Quality notes
+## Deploying
 
-- All lists keep filters, search, sort and page in the URL (`?status=DELIVERED&page=2`) and are shareable.
-- Skeletons for every data page (`loading.tsx` + in-component), meaningful empty states, inline error states with retry,
-  toast on every mutation failure. Server Components by default; `"use client"` only where needed.
-- Mobile-first: card lists on phones / tables on desktop, thumb-sized rider actions, native selects.
-- Contact form opens the visitor's mail app (the backend has no contact endpoint).
-- Payments: the backend integrates **bKash** (tokenized checkout), so that is the gateway used here.
+The site runs on Vercel. A few things to know:
 
-## Deploying (read this before going live)
+1. `BACKEND_URL` and every `NEXT_PUBLIC_*` variable are read at build time. Set them before building, and rebuild after changing them.
+2. The backend's `FRONTEND_URL` must match this site's URL, because bKash sends the customer back to `/payment/success` or `/payment/failure`.
+3. bKash runs in sandbox mode until production credentials are added to the backend.
 
-1. **`BACKEND_URL` and `NEXT_PUBLIC_*` are baked in at build time** (Next.js compiles rewrites into the build).
-   Set them in your host's environment *before* `next build`; changing them later needs a rebuild.
-2. **Backend `FRONTEND_URL`** must equal this site's public URL (bKash redirects the customer there).
-3. **Backend rate limiter** (`express-rate-limit`, 300 req / 15 min / IP): the backend does not set `trust proxy`, so behind a
-   proxy/Vercel every visitor can share ONE bucket. Add `app.set("trust proxy", 1)` in the backend and raise the limit
-   (e.g. 300 → 1000+, or only limit `/auth/*`) before real traffic.
-4. **Payments:** bKash is sandbox until you put production credentials on the backend.
-5. Optional Google sign-in needs `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (frontend) and `GOOGLE_CLIENT_ID` (backend) to match.
+## Known backend quirks
 
-## Known backend issues the frontend works around
+Things I had to work around on the frontend:
 
-| Backend behaviour | What the frontend does |
-| ----------------- | ---------------------- |
-| `GET /payments/my-payments` ignores `?status=` | Customer payments are loaded once and filtered/paginated client-side |
-| `PATCH /users/me` rejects an empty `contactNumber` | Empty phone is omitted from the request |
-| Tracking codes are case-sensitive | Track form and URL upper-case the code |
-| `PATCH /riders/:id/verify` is single-use (REJECTED can't be approved later) | Approve/Reject buttons only appear on PENDING applications |
-| Multer/Cloudinary errors are returned as HTTP 500 | Upload errors show a friendly toast |
+| Backend behaviour | How the frontend handles it |
+| ----------------- | --------------------------- |
+| `GET /payments/my-payments` ignores the `status` filter | Payments are loaded once and filtered on the client |
+| `PATCH /users/me` rejects an empty phone number | An empty phone is left out of the request |
+| Tracking codes are case-sensitive | The code is converted to upper case before searching |
+| Rider verification can only be done once | Approve/Reject only show for pending applications |
+| Upload errors come back as HTTP 500 | A friendly error message is shown instead |
 
 ## Tests
 
-`npm run test:api` (~110 real-API checks) and `npm run test:ui` (20 component flows) — see `e2e/README.md`.
+`npm run test:api` runs checks against a real backend, and `npm run test:ui` runs component tests. Setup details are in `e2e/README.md`.
+
+
