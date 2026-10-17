@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function HubsPage() {
   return (
-    <section className="mx-auto max-w-6xl space-y-8 px-4 py-14 md:py-24">
+    <section className="mx-auto max-w-7xl space-y-8 px-4 py-14 md:py-24">
       <div className="space-y-2">
         <h1 className="text-4xl font-bold tracking-tight text-balance md:text-5xl">
           Our hubs
@@ -22,7 +22,7 @@ export default function HubsPage() {
           to the pickup and the receiver when you book.
         </p>
       </div>
-      <Suspense fallback={<Skeleton className="h-64 w-full rounded-xl" />}>
+      <Suspense fallback={<Skeleton className="h-96 w-full rounded-2xl" />}>
         <PublicHubList />
       </Suspense>
     </section>

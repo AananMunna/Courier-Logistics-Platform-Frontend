@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Footer from "@/components/layout/public/Footer";
 import Header from "@/components/layout/public/Header";
+import AssistantLauncher from "@/components/modules/assistant/assistant-launcher";
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Footer />
+      <AssistantLauncher />
     </div>
   );
 }
