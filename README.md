@@ -76,16 +76,20 @@ Other scripts: `npm run build`, `npm start`, `npm run typecheck`, `npm run lint`
 | `NEXT_PUBLIC_SITE_URL` | Public URL of this site. |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Optional. Without it the Google sign-in button is hidden. |
 | `NEXT_PUBLIC_DEMO_*` | Optional. Credentials for the one-click demo login buttons. |
-| `ANTHROPIC_API_KEY` | Optional. Turns on the AI assistant. Server-side only; set it before building. |
-| `ASSISTANT_MODEL` | Optional. Model used by the assistant (default `claude-haiku-5-5`). |
+| `GEMINI_API_KEY` | Optional. Turns on the AI assistant using Google Gemini's free tier. Server-side only; set it before building. |
+| `GEMINI_MODEL` | Optional. Gemini model (default `gemini-3.5-flash-lite`). |
+| `ANTHROPIC_API_KEY` | Optional, paid. Uses Claude instead when no Gemini key is set. |
+| `ASSISTANT_MODEL` / `ASSISTANT_PROVIDER` | Optional. Claude model (default `claude-haiku-5-5`) and a switch to force `gemini` or `anthropic`. |
 
 The full list is in `.env.example`.
 
 ## AI assistant
 
-Public pages show a chat button (bottom right) when `ANTHROPIC_API_KEY` is set. The assistant answers questions about booking, fees, payments, cancelling and hubs using the site's own pricing and FAQ config, can look up a parcel by tracking code, and can calculate a delivery fee. It cannot book, pay or cancel anything. Parcel addresses are never passed to the model.
+Public pages show a chat button (bottom right) when `GEMINI_API_KEY` (free) or `ANTHROPIC_API_KEY` (paid) is set. The assistant answers questions about booking, fees, payments, cancelling and hubs using the site's own pricing and FAQ config, can look up a parcel by tracking code, and can calculate a delivery fee. It cannot book, pay or cancel anything. Parcel addresses are never passed to the model.
 
-The route is `src/app/api/assistant/route.ts`. It accepts at most 12 messages of 500 characters and allows 20 requests per IP every 10 minutes. That limit is kept in memory per server instance, so use a shared store such as Redis if you need a strict cap.
+On Gemini's free tier, Google may use the messages to improve its products (the chat window says so), so tell visitors not to share personal details. Free-tier limits are set by Google and can change; check them in AI Studio.
+
+The route is `src/app/api/assistant/route.ts`; the model calls live in `src/lib/assistant/`. It accepts at most 12 messages of 500 characters and allows 20 requests per IP every 10 minutes. That limit is kept in memory per server instance, so use a shared store such as Redis if you need a strict cap.
 
 ## How API calls work
 

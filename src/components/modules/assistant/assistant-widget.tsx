@@ -22,7 +22,7 @@ const SUGGESTIONS = [
 const GREETING =
   "Hi! I can help with booking, delivery fees, payments, tracking and hubs. Ask me anything, or send a tracking code and I will check it.";
 
-export default function AssistantWidget() {
+export default function AssistantWidget({ notice }: { notice: string }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -234,9 +234,7 @@ export default function AssistantWidget() {
                 {pending ? <Spinner /> : <Send />}
               </Button>
             </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              AI can make mistakes. For account issues, contact support.
-            </p>
+            <p className="mt-2 text-[11px] text-muted-foreground">{notice}</p>
           </form>
         </section>
       )}
