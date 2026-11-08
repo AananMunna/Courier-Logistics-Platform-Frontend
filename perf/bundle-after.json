@@ -1,0 +1,14 @@
+{
+  "label": "after",
+  "chunkCount": 66,
+  "totalRaw": "2866.1 kB",
+  "totalGzip": "883.2 kB",
+  "rechartsChunksRaw": "456.0 kB",
+  "top5": [
+    "2bn6reidprtgk.js  455.3 kB (gz 108.0 kB)",
+    "3--ij-4emv8gi.js  365.4 kB (gz 103.9 kB)  [recharts]",
+    "1j_9b-l0n6u-t.js  223.6 kB (gz 69.9 kB)",
+    "2l1colz4nkd9h.js  151.8 kB (gz 41.7 kB)",
+    "0cz1d0mv5g_q7.js  110.0 kB (gz 38.7 kB)"
+  ]
+}

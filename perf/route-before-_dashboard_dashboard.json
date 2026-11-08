@@ -1,0 +1,8 @@
+{
+  "label": "before",
+  "route": "(dashboard)/dashboard",
+  "chunks": 19,
+  "initialRaw": "531.0 kB",
+  "initialGzip": "177.6 kB",
+  "rechartsInInitialLoad": false
+}
