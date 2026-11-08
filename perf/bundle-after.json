@@ -1,8 +1,8 @@
 {
   "label": "after",
-  "chunkCount": 66,
-  "totalRaw": "2866.1 kB",
-  "totalGzip": "883.2 kB",
+  "chunkCount": 68,
+  "totalRaw": "2868.5 kB",
+  "totalGzip": "885.1 kB",
   "rechartsChunksRaw": "456.0 kB",
   "top5": [
     "2bn6reidprtgk.js  455.3 kB (gz 108.0 kB)",

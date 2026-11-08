@@ -41,6 +41,12 @@
 - `React.lazy` + `Suspense` for `ShipmentTrend` and `OverviewCharts` (Recharts) in `admin-overview.tsx`, with fixed-height skeleton fallbacks (no layout shift).
 - `next/dynamic` for the Data Explorer so its virtualization code is its own chunk.
 
+### Dependency & import audit
+- **Recharts** (~365 kB raw) — lazy-loaded (above). **Google OAuth** (`@react-oauth/google`) — was a global provider wrapping the whole app (loads Google's GSI script on every route); now scoped inside the Google button, so it only loads on login/register.
+- **Removed unused dependency:** `react-day-picker` was only imported by `src/components/ui/calendar.tsx`, which nothing used. Both removed.
+- Audited the rest: every other dependency is imported in `src/` (`shadcn` is used via `@import "shadcn/tailwind.css"`), so nothing else is removable.
+- Tree shaking: all `lucide-react` (88 imports) and `date-fns` imports are named imports — already tree-shakeable; no barrel/namespace imports to fix.
+
 ### Server / Client boundary
 1. **`/admin`**: the hero (`DashboardHero` + `LinkButton`s) moved out of the client component into the Server Component `page.tsx`. Only live stats remain client.
 2. **`/dashboard`**: the large static hero moved to Server Component `CustomerHero`; the only client pieces are `TrackForm` (needs router/state) and a 6-line `CustomerGreeting` (needs the signed-in user). The static markup no longer ships as JS.
@@ -52,12 +58,12 @@
 
 | Route initial client JS | Before (`main`) | After | Change |
 |---|---|---|---|
-| `/admin` raw | 941.8 kB | **524.3 kB** | **−417.5 kB (−44%)** |
-| `/admin` gzip | 296.4 kB | **175.6 kB** | **−120.8 kB (−41%)** |
+| `/admin` raw | 941.8 kB | **521.5 kB** | **−420.3 kB (−45%)** |
+| `/admin` gzip | 296.4 kB | **174.6 kB** | **−121.8 kB (−41%)** |
 | Recharts in initial `/admin` load | yes | **no (lazy chunk)** | removed |
-| `/dashboard` raw | 531.0 kB | 529.2 kB | −1.8 kB (server hero; small by design) |
+| `/dashboard` raw | 531.0 kB | 526.4 kB | −4.6 kB (server hero + Google provider scoped) |
 
-All-chunks total grows from 2,711 kB → 2,866 kB raw because the new Data Explorer route and lazy chunks exist — that is code that is **not** loaded on the other routes. Raw data: `perf/*.json`.
+All-chunks total grows from 2,711 kB → 2,868 kB raw because the new Data Explorer route and lazy chunks exist — that is code that is **not** loaded on the other routes. Raw data: `perf/*.json`.
 
 ### Lighthouse / Profiler / Web Vitals
 | Metric | Before | After |
@@ -80,3 +86,4 @@ All-chunks total grows from 2,711 kB → 2,866 kB raw because the new Data Explo
 - The Data Explorer uses generated data, not live API data.
 - ~455 kB shared framework chunk and a 223 kB chunk remain on every route (React/Next runtime, Base UI, TanStack Query); further wins would need dependency-level audits (`lucide-react` import audit, `date-fns` usage).
 - Lighthouse, Profiler recordings and Core Web Vitals are not yet captured (see table above).
+- The `test:ui` / `test:api` npm scripts point at an `e2e/` folder that does not exist in the repo (pre-existing), so no automated tests could be run. Verified with `next build`, `tsc --noEmit` and Biome only; manual mobile/tablet/dark-mode/console checks still to do in the browser.
