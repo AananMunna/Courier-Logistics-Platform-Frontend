@@ -66,21 +66,23 @@
 All-chunks total grows from 2,711 kB → 2,868 kB raw because the new Data Explorer route and lazy chunks exist — that is code that is **not** loaded on the other routes. Raw data: `perf/*.json`.
 
 ### Lighthouse / Profiler / Web Vitals
-| Metric (`/admin`, mobile, simulated throttling, Lighthouse 13.5.0) | Before (`main`, measured) | After |
-|---|---|---|
-| Performance score | **72** | ⏳ to capture on preview |
-| First Contentful Paint | 1.2 s | ⏳ |
-| LCP (target ≤ 2.5 s) | **1.8 s** ✅ | ⏳ |
-| CLS (target ≤ 0.1) | **0.058** ✅ | ⏳ |
-| Total Blocking Time | **790 ms** (weakest metric) | ⏳ |
-| Speed Index | 8.5 s | ⏳ |
-| Time to Interactive | 6.5 s | ⏳ |
-| Total transfer | 893 KiB | ⏳ |
-| INP (target ≤ 200 ms) | ⏳ (needs real interaction) | ⏳ |
-| Profiler: commits while typing in a 1,200-row list | n/a (list did not exist) | ⏳ expect rows not re-rendering |
-| Profiler: commits when selecting a row | n/a | ⏳ expect 1 row + toolbar |
+| Metric (`/admin`, mobile, simulated throttling, Lighthouse 13.5.0) | Before (`main`) | After (this branch, deployed) | Change |
+|---|---|---|---|
+| Performance score | 72 | **77** | +5 |
+| First Contentful Paint | 1.2 s | 1.0 s | −0.2 s |
+| LCP (target ≤ 2.5 s) | 1.8 s ✅ | **1.7 s** ✅ | −0.1 s |
+| CLS (target ≤ 0.1) | 0.058 ✅ | **0.043** ✅ | −0.015 |
+| Total Blocking Time | 790 ms | **560 ms** | **−29%** |
+| Time to Interactive | 6.5 s | **5.5 s** | −1.0 s |
+| Speed Index | 8.5 s | 8.5 s | no change |
+| Total transfer | 893 KiB | 800 KiB | −93 KiB |
+| INP (target ≤ 200 ms) | ⏳ (needs real interaction) | ⏳ | |
+| Profiler: commits while typing in a 1,200-row list | n/a (list did not exist) | ⏳ expect rows not re-rendering | |
+| Profiler: commits when selecting a row | n/a | ⏳ expect 1 row + toolbar | |
 
-Before-run: single run, 2026-11-09 10:24 (Asia/Dhaka), https://couriergo.vercel.app/admin. Report the median of 3 runs for the final comparison.
+Before-run: 2026-11-09 10:24 (Asia/Dhaka). After-run: 2026-11-09 10:51 (Asia/Dhaka), both on https://couriergo.vercel.app/admin, same machine, same Lighthouse settings. **Each is a single run**, so differences of a few points are within run-to-run noise; TBT (−230 ms) and TTI (−1 s) are the most meaningful gains. Repeat 3× and take the median for a firmer comparison.
+
+Why the gain is modest: Lighthouse waits for the page to go idle, and `/admin` loads its charts as soon as stats arrive, so the lazy Recharts chunk is still fetched inside the measured window. The win is that it no longer blocks the initial route bundle (941.8 → 521.5 kB) — less JS to parse before the page becomes interactive, which is what TBT/TTI capture.
 
 ### How to capture the browser measurements
 1. Deploy `main` and this branch (Vercel preview). Log in with a demo admin account.
@@ -92,5 +94,6 @@ Before-run: single run, 2026-11-09 10:24 (Asia/Dhaka), https://couriergo.vercel.
 - Existing server-paginated tables (users, shipments, audit logs) are intentionally unchanged: they render 10–15 rows, so virtualizing them would add complexity with no gain. The 1,000+ row virtualization is demonstrated on the Data Explorer with representative data; wiring it to a real bulk endpoint needs a backend `limit` > 100.
 - The Data Explorer uses generated data, not live API data.
 - ~455 kB shared framework chunk and a 223 kB chunk remain on every route (React/Next runtime, Base UI, TanStack Query); further wins would need dependency-level audits (`lucide-react` import audit, `date-fns` usage).
-- Lighthouse, Profiler recordings and Core Web Vitals are not yet captured (see table above).
+- **Still slow after optimization (measured):** JS bootup 5.8 s and main-thread work 11.4 s on the simulated mobile CPU; Lighthouse estimates ~170 KiB of unused JavaScript; Speed Index unchanged at 8.5 s (the page is skeleton/loading-state heavy while API data loads). Next steps: audit the shared 466 kB and 229 kB chunks, and server-render the first data fetch.
+- Profiler recordings and INP are not yet captured (see table above).
 - The `test:ui` / `test:api` npm scripts point at an `e2e/` folder that does not exist in the repo (pre-existing), so no automated tests could be run. Verified with `next build`, `tsc --noEmit` and Biome only; manual mobile/tablet/dark-mode/console checks still to do in the browser.
