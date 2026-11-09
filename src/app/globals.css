@@ -133,6 +133,15 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Tell the browser which theme is active so native controls (select
+   * dropdowns, scrollbars, date pickers) draw in matching colors. Without
+   * this, a native <select> list stays white while its text turns light. */
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+  }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
