@@ -113,7 +113,7 @@ export default function PaymentListView({
         <>
           <ul
             className={cn(
-              "space-y-3 transition-opacity md:hidden",
+              "space-y-3 transition-opacity xl:hidden",
               isFetching && "opacity-60",
             )}
           >
@@ -150,7 +150,7 @@ export default function PaymentListView({
           </ul>
           <div
             className={cn(
-              "hidden overflow-x-auto rounded-2xl border bg-card transition-opacity md:block",
+              "hidden overflow-x-auto rounded-2xl border bg-card transition-opacity xl:block",
               isFetching && "opacity-60",
             )}
           >
