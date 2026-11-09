@@ -10,44 +10,42 @@ import {
   UserCog,
   Wallet,
 } from "lucide-react";
-import { DashboardHero } from "@/components/shared/dashboard-hero";
+import { lazy, Suspense } from "react";
 import { ErrorState } from "@/components/shared/error-state";
-import { PageContainer } from "@/components/shared/page-header";
 import { StatCard, StatGridSkeleton } from "@/components/shared/stat-card";
-import { LinkButton } from "@/components/ui/link-button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminStats } from "@/hooks";
 import { formatCurrency } from "@/utils";
 import { RecentShipments } from "../dashboard/recent-shipments";
 import { OpsQueue } from "./ops-queue";
-import { OverviewCharts } from "./overview-charts";
-import { ShipmentTrend } from "./shipment-trend";
 
+// Recharts (~370 kB raw) is only needed once stats have loaded — keep it out of
+// the initial route bundle. Fallbacks reserve the final height to avoid CLS.
+const ShipmentTrend = lazy(() =>
+  import("./shipment-trend").then((m) => ({ default: m.ShipmentTrend })),
+);
+const OverviewCharts = lazy(() =>
+  import("./overview-charts").then((m) => ({ default: m.OverviewCharts })),
+);
+
+function ChartSkeleton({ height }: { height: number }) {
+  return (
+    <Skeleton
+      style={{ height }}
+      className="w-full rounded-2xl"
+      aria-busy="true"
+      aria-label="Loading chart"
+    />
+  );
+}
+
+/** Client-only live section. The hero/header is a Server Component in page.tsx. */
 export default function AdminOverview() {
   const { data, isPending, error, refetch } = useAdminStats();
   const stats = data?.data;
 
   return (
-    <PageContainer>
-      <DashboardHero
-        title="Operations overview"
-        description="What needs your attention right now, and how the business is doing."
-        actions={
-          <>
-            <LinkButton href="/admin/shipments" size="lg" className="h-10 px-4">
-              All shipments
-            </LinkButton>
-            <LinkButton
-              href="/admin/approve-rider"
-              size="lg"
-              variant="outline"
-              className="h-10 border-white/20 bg-white/5 px-4 text-ink-foreground hover:bg-white/10"
-            >
-              Rider approvals
-            </LinkButton>
-          </>
-        }
-      />
-
+    <>
       <OpsQueue />
 
       {isPending ? (
@@ -109,8 +107,12 @@ export default function AdminOverview() {
               icon={Building2}
             />
           </div>
-          <ShipmentTrend />
-          <OverviewCharts stats={stats} />
+          <Suspense fallback={<ChartSkeleton height={380} />}>
+            <ShipmentTrend />
+          </Suspense>
+          <Suspense fallback={<ChartSkeleton height={340} />}>
+            <OverviewCharts stats={stats} />
+          </Suspense>
         </>
       )}
 
@@ -120,6 +122,6 @@ export default function AdminOverview() {
         emptyText="Shipments booked by customers will appear here."
         viewAllHref="/admin/shipments"
       />
-    </PageContainer>
+    </>
   );
 }
