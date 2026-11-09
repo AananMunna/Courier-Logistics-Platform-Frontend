@@ -66,14 +66,21 @@
 All-chunks total grows from 2,711 kB → 2,868 kB raw because the new Data Explorer route and lazy chunks exist — that is code that is **not** loaded on the other routes. Raw data: `perf/*.json`.
 
 ### Lighthouse / Profiler / Web Vitals
-| Metric | Before | After |
+| Metric (`/admin`, mobile, simulated throttling, Lighthouse 13.5.0) | Before (`main`, measured) | After |
 |---|---|---|
-| Lighthouse Performance (`/admin`, mobile) | ⏳ to capture on `main` deploy | ⏳ to capture on this branch |
-| LCP (target ≤ 2.5 s) | ⏳ | ⏳ |
-| INP (target ≤ 200 ms) | ⏳ | ⏳ |
-| CLS (target ≤ 0.1) | ⏳ | ⏳ |
+| Performance score | **72** | ⏳ to capture on preview |
+| First Contentful Paint | 1.2 s | ⏳ |
+| LCP (target ≤ 2.5 s) | **1.8 s** ✅ | ⏳ |
+| CLS (target ≤ 0.1) | **0.058** ✅ | ⏳ |
+| Total Blocking Time | **790 ms** (weakest metric) | ⏳ |
+| Speed Index | 8.5 s | ⏳ |
+| Time to Interactive | 6.5 s | ⏳ |
+| Total transfer | 893 KiB | ⏳ |
+| INP (target ≤ 200 ms) | ⏳ (needs real interaction) | ⏳ |
 | Profiler: commits while typing in a 1,200-row list | n/a (list did not exist) | ⏳ expect rows not re-rendering |
 | Profiler: commits when selecting a row | n/a | ⏳ expect 1 row + toolbar |
+
+Before-run: single run, 2026-11-09 10:24 (Asia/Dhaka), https://couriergo.vercel.app/admin. Report the median of 3 runs for the final comparison.
 
 ### How to capture the browser measurements
 1. Deploy `main` and this branch (Vercel preview). Log in with a demo admin account.
