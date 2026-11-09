@@ -28,7 +28,7 @@ function routeLabel(shipment: Shipment) {
   const from = shipment.originHub?.name ?? "—";
   const to = shipment.destinationHub?.name ?? "—";
   return (
-    <span className="inline-flex items-center gap-1.5">
+    <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
       {from}{" "}
       <ArrowRight
         className="size-3 shrink-0 text-muted-foreground"
@@ -94,7 +94,7 @@ function ShipmentCard({
 export default function ShipmentList({ shipments, role, isFetching }: Props) {
   return (
     <div className={cn("transition-opacity", isFetching && "opacity-60")}>
-      <ul className="space-y-3 md:hidden">
+      <ul className="space-y-3 xl:hidden">
         {shipments.map((shipment) => (
           <li key={shipment.id}>
             <ShipmentCard shipment={shipment} role={role} />
@@ -102,7 +102,7 @@ export default function ShipmentList({ shipments, role, isFetching }: Props) {
         ))}
       </ul>
 
-      <div className="hidden overflow-hidden rounded-2xl border bg-card md:block">
+      <div className="hidden overflow-hidden rounded-2xl border bg-card xl:block">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -132,7 +132,7 @@ export default function ShipmentList({ shipments, role, isFetching }: Props) {
                     {shipment.trackingCode}
                   </Link>
                 </TableCell>
-                <TableCell className="text-sm">
+                <TableCell className="text-sm whitespace-normal">
                   {routeLabel(shipment)}
                 </TableCell>
                 <TableCell className="max-w-[180px] truncate text-sm">

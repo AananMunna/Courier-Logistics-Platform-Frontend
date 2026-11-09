@@ -23,7 +23,7 @@ export default function DashboardShell({
       <DashboardSidebar role={role} />
       <SidebarInset className="bg-muted/30">
         <DashboardTopbar role={role} />
-        <main id="main-content" className="flex-1 pb-24 md:pb-0">
+        <main id="main-content" className="min-w-0 flex-1 pb-24 md:pb-0">
           {children}
         </main>
         <MobileTabBar role={role} />
