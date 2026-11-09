@@ -29,6 +29,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   users: "Users",
   hubs: "Hubs",
   "audit-logs": "Audit log",
+  "data-explorer": "Data explorer",
   "approve-rider": "Rider applications",
   new: "New shipment",
 };
@@ -38,10 +39,7 @@ function useTrail(role: UserRole, pathname: string) {
   const known = new Map(
     ROLE_ROUTES[role].flatMap((g) => g.items.map((i) => [i.url, i.title])),
   );
-  const rest = pathname
-    .slice(prefix.length)
-    .split("/")
-    .filter(Boolean);
+  const rest = pathname.slice(prefix.length).split("/").filter(Boolean);
 
   const trail = [{ label: ROOT_TITLE[role], href: prefix }];
   let href = prefix;
@@ -56,12 +54,14 @@ function useTrail(role: UserRole, pathname: string) {
   });
 
   // /shipments/<id> => title "Shipment details", crumb shows the id.
-  const isDetail = rest[0] === "shipments" && rest.length === 2 && rest[1] !== "new";
-  const title = rest.length === 0
-    ? ROOT_TITLE[role]
-    : isDetail
-      ? "Shipment details"
-      : trail[trail.length - 1].label;
+  const isDetail =
+    rest[0] === "shipments" && rest.length === 2 && rest[1] !== "new";
+  const title =
+    rest.length === 0
+      ? ROOT_TITLE[role]
+      : isDetail
+        ? "Shipment details"
+        : trail[trail.length - 1].label;
 
   return { trail, title };
 }

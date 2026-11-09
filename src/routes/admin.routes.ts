@@ -2,6 +2,7 @@ import {
   Building2,
   ClipboardList,
   CreditCard,
+  Database,
   LayoutDashboard,
   Menu,
   PackageSearch,
@@ -37,6 +38,11 @@ export const adminRoutes: SidebarItems = [
       { title: "Payments", url: `${prefix}/payments`, icon: CreditCard },
       { title: "Users", url: `${prefix}/users`, icon: Users },
       { title: "Audit logs", url: `${prefix}/audit-logs`, icon: ClipboardList },
+      {
+        title: "Data explorer",
+        url: `${prefix}/data-explorer`,
+        icon: Database,
+      },
     ],
   },
 ];

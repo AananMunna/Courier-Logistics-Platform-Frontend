@@ -1,6 +1,6 @@
 "use client";
 
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROLE_HOME } from "@/constants";
 import { useGoogleOAuth, useRefreshSession } from "@/hooks";
@@ -41,17 +41,26 @@ export default function GoogleLoginComponent() {
     }
   };
 
+  // The provider (and Google's GSI script) is scoped to this button instead of
+  // wrapping the whole app, so dashboard routes never load it.
   return (
-    <div className="flex justify-center">
-      <GoogleLogin
-        theme="outline"
-        shape="pill"
-        text="continue_with"
-        onSuccess={handleSuccess}
-        onError={() =>
-          notify.error("Google sign-in failed", new Error("Please try again."))
-        }
-      />
-    </div>
+    <GoogleOAuthProvider
+      clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string}
+    >
+      <div className="flex justify-center">
+        <GoogleLogin
+          theme="outline"
+          shape="pill"
+          text="continue_with"
+          onSuccess={handleSuccess}
+          onError={() =>
+            notify.error(
+              "Google sign-in failed",
+              new Error("Please try again."),
+            )
+          }
+        />
+      </div>
+    </GoogleOAuthProvider>
   );
 }
